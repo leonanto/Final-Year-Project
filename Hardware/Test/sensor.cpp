@@ -47,8 +47,8 @@ void gprsSetup(){
   }
 }
 
-void GPRSPOST(float temp){
-  char http_cmd[] = "POST /media/uploads/mbed_official/hello.txt HTTP/1.0\r\n\r\n";
+void gprsPostvalues(float temp){
+  char http_cmd[] = "POST  HTTP/1.1\r\nHost: \r\nContent-Type:application\json\r\n\r\n";
   gprsSetup();
   Serial.println("waiting to post...");
   if(0 == gprs.sendTCPData(http_cmd))
@@ -57,8 +57,14 @@ void GPRSPOST(float temp){
   }
 }
 
-bool GPRSGET(){
-
+bool gprsGet(){
+  char http_cmd[] = "GET /media/uploads/mbed_official/hello.txt HTTP/1.1\r\nHost: \r\n\r\n";
+  gprsSetup();
+  Serial.println("waiting to post...");
+  if(0 == gprs.sendTCPData(http_cmd))
+  {      
+    gprs.serialDebug();
+  }
 }
 
 void setup() {
