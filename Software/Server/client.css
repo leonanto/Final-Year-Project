@@ -1,0 +1,33 @@
+body {
+    margin-right: 400px;
+    margin-left: 100px;
+    background:#295675;
+}
+
+#irrigation{
+    color: white;
+    font-family: monospace;
+    font-size: large;
+}
+
+h2{
+    color: white;
+    font-family: monospace;
+}
+
+.temp, .moist{
+     color: white;
+    font-family: monospace;
+}
+
+#unit1{
+    float: left;
+}
+
+#unit2{
+    position: relative;
+    margin-right: 400px;
+	height: 250px;
+	width: 200px;
+    float: right;
+}
