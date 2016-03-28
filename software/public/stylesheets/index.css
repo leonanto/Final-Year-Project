@@ -1,0 +1,27 @@
+body {
+    background:#193366;
+    font-family: helvetica !important;
+}
+
+h2{
+    color: white;
+}
+
+.irrigation{
+    color: white;
+    font-size: 14px;
+    display: inline-block; 
+}
+
+.temp, .moist{
+    color: white;
+    font-weight: 100;
+    margin-bottom:5px;
+}
+
+.section-header{
+    color:white; 
+    font-size: 22px; 
+    margin-bottom: 10px; 
+    padding-top:20px;
+}
