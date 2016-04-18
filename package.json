@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/leonanto/Final-Year-Project/issues"
   },
-  "homepage": "https://github.com/leonanto/Final-Year-Project#readme"
+  "homepage": "https://github.com/leonanto/Final-Year-Project#readme",
+  "dependencies": {
+    "socket.io": "^1.4.5"
+  }
 }

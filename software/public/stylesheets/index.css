@@ -13,6 +13,11 @@ h2{
     display: inline-block; 
 }
 
+#controller{
+    padding-left: 15px;
+    display: inline-block;
+}
+
 .temp, .moist{
     color: white;
     font-weight: 100;
