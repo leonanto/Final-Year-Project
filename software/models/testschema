@@ -1,0 +1,13 @@
+//Dependencies
+var restful = require('node-restful');
+var mongoose = restful.mongoose;
+
+
+//Schema
+var testschema = new mongoose.Schema({
+  name: String
+});
+
+
+//Return model
+module.exports = restful.model('testschema', testschema);

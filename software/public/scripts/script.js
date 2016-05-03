@@ -10,8 +10,15 @@ $(document).ready(function(){
       temp2 = parseFloat(data.qs_temp2);
       moist1 = parseFloat(data.qs_moist1);
       moist2 = parseFloat(data.qs_moist2);
-      stat = parseInt(data.qs_stat);
-       
+      stat = parseInt(data.qs_stat, 10);
+      console.log(stat);
+    
+      if(stat == 1){
+        $('#stat').html("ON");
+      }
+      if (stat == 0){
+        $('#stat').html("OFF");
+      }   
       avg_temp = (temp1 + temp2)/2;
       avg_moist = (moist1 + moist2)/2;
        
@@ -30,18 +37,18 @@ $(document).ready(function(){
       
      if (controller == 0){
          controller = 1;
-         $.get("/ClientStatus/?stat=1");
          $('#controller').html("ON");
          if(override == 1){
-             $('#stat').html("ON");
+             $.get("/ClientStatus/?stat=1");
+            // $('#stat').html("ON");
          }
      }  
      else{
          controller = 0;
-         $.get("/ClientStatus/?stat=0");
          $('#controller').html("OFF");
          if(override == 1){
-             $('#stat').html("ON");
+             $.get("/ClientStatus/?stat=0");
+             //$('#stat').html("ON");
          }
      }
      console.log("controller: "+ controller);
@@ -60,12 +67,6 @@ $(document).ready(function(){
      }
       console.log("override: "+ override);
   });
-  if(stat == 1){
-      $('#stat').html("ON");
-  }
-  else{
-      $('#stat').html("OFF");
-  }
   
 });
 
