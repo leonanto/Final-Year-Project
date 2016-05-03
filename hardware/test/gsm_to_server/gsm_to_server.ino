@@ -4,20 +4,12 @@
 #define HOST "final-year-project-leonanto.c9users.io"
 #define PORT 8080
 //Irrigation system pin GPIO16
-#define IR_PIN 2
-
-//SIM800 TX is connected to ESP8266 GPIO4
-//#define SIM800_TX_PIN  4
- 
-//SIM800 RX is connected to ESP8266 GPIO5
-//#define SIM800_RX_PIN  5
+#define IR_PIN 16
 
 int unit1stat = 0;
 int unit2stat = 0;
 int temp1, temp2, moist1, moist2;
 int stat, override;
-// Create an instance of the server
-// specify the port to listen on as an argument
 GPRS gprs;
 
 void gprsSetup(){
@@ -37,10 +29,12 @@ void gprsSetup(){
       Serial.println("gprs join network error");
         delay(2000);
     }
-    //Serial.println("Join success");
+    Serial.println("Join success");
 }
 
-void serverConnect(char* data){
+String serverConnect(char* data){
+     String response;     
+     char c;
      if(0 != gprs.connectTCP(HOST,PORT)){
         Serial.println("connect TCP error");
         goto STOP;
@@ -49,66 +43,45 @@ void serverConnect(char* data){
         Serial.println("send TCP data error");
         goto STOP;
      }
+     else{
+         while(c != '!') {
+          if(gprs.serialSIM800.available()){
+          c = gprs.serialSIM800.read();
+          response += c;
+          }
+        }
+        gprs.closeTCP();
+        return response;
+      }
      STOP:
      gprs.closeTCP();
+     return ("Failed");
 }  
 
 void gprsSendValues(int temp1, int moist1, int temp2, int moist2, int stat){
    char http_cmd[128];
    String response;     
-   char c;
-   int count = 0;
-   while(0 != gprs.connectTCP(HOST, 8080)) {
-        break;
-    }
-    //Serial.println("connection success");
     sprintf(http_cmd, "GET /GV/?t1=%d&m1=%d&t2=%d&m2=%d&s=%d HTTP/1.1\r\nHost: %s\r\n\r\n", temp1, moist1, temp2, moist2, stat, HOST);
     Serial.println("waiting to Send...");
     Serial.println(http_cmd);
-    //serverConnect(http_cmd);
-    if(0 == gprs.sendTCPData(http_cmd))
-    {    
-         Serial.println("Sent");       
-//       String response;
-//       char c;
-//       int count = 0;
-//        while(c != 'K' ) {
-//          if(gprs.serialSIM800.available()){
-//              c = gprs.serialSIM800.read();
-//              response += c;
-//              count++;
-//          }
-//        }
-    }
+    response = serverConnect(http_cmd);
+    response = serverConnect(http_cmd);
+   
+
+       Serial.print("Complete: ");
+       Serial.println(response);
     delay(2000);
 }
 
 void getOverrideStatus(){
   char http_cmd[128];
-  String response;     
-  char c;
-  int count = 0;
-  while(0 != gprs.connectTCP(HOST, 8080)) {
-        break;
-    }
-    //Serial.println("connection success");
+  String response;
   sprintf(http_cmd, "GET /OS HTTP/1.1\r\nHost: %s\r\n\r\n", HOST);
-  //serverConnect(http_cmd);
-   if(0 == gprs.sendTCPData(http_cmd))
-    {      
-        while(c != '!') {
-          if(gprs.serialSIM800.available()){
-              c = gprs.serialSIM800.read();
-              response += c;
-              count++;
-          }
-        }
-      }
+  response = serverConnect(http_cmd);
+   
 
        Serial.print("Complete: ");
        Serial.println(response);
-       Serial.print("Count: ");
-       Serial.println(count);
 
        
       if(response.indexOf("Status: ON") != -1){
@@ -125,28 +98,11 @@ void getIrrigationStatus(){
   String response;     
   char c;
   int count = 0;
-  while(0 != gprs.connectTCP(HOST, 8080)) {
-        break;
-    }
-    //Serial.println("connection success");
   sprintf(http_cmd, "GET /IS HTTP/1.1\r\nHost: %s\r\n\r\n", HOST);
-   //serverConnect(http_cmd);
-   if(0 == gprs.sendTCPData(http_cmd))
-    { 
-        while(c != '!') {
-          if(gprs.serialSIM800.available()){
-              c = gprs.serialSIM800.read();
-              response += c;
-              count++;
-          }
-        }
-       }
-
+  
+   response = serverConnect(http_cmd);
        Serial.print("Complete: ");
        Serial.println(response);
-//       Serial.print("Count: ");
-//       Serial.println(count);
-
       
       if(response.indexOf("Status: ON") != -1){
         digitalWrite(IR_PIN, HIGH);

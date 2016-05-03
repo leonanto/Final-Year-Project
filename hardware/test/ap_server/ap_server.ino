@@ -1,11 +1,10 @@
-#include <EEPROM.h>
 #include <ESP8266WiFi.h>
 
 const char* ssid = "LiFi";
-const char* WiFiAPPSK = "leonardo";
-unit1stat = 0;
-unit2stat = 0;
-int temp[1], moist[1];
+const char* password = "leonardo";
+int unit1stat = 0;
+int unit2stat = 0;
+int temp[2], moist[2];
 // Create an instance of the server
 // specify the port to listen on as an argument
 WiFiServer server(80);
@@ -15,25 +14,19 @@ void setup() {
   delay(10);
   
   //Create AP
-  WiFi.mode(WIFI_AP);
-  WiFi.softAP(ssid, WiFiAPPSK);
-  
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-  Serial.println("");
-  Serial.println("WiFi connected");
-  
+  WiFi.softAP(ssid, password);
+ 
   // Start the server
   server.begin();
   Serial.println("Server started");
 
   // Print the IP address
-  Serial.println(WiFi.localIP());
+  Serial.println(WiFi.softAPIP());
 }
 
 void loop() {
+
+  //Serial.println("Ready");
   // Check if a client has connected
   WiFiClient client = server.available();
   if (!client) {
@@ -52,7 +45,16 @@ void loop() {
   client.flush();
   
   // Match the request
-  String clientValues = req.substring(4);
+  if (req.indexOf("/favicon.ico") != -1){
+    Serial.println("invalid request");
+    client.stop();
+    return;
+  }
+  //"/read/"
+  int r_begin = req.indexOf('d');
+  int r_end = req.indexOf('H');
+  String clientValues = req.substring(r_begin+2, r_end-1);
+  Serial.println(clientValues);
 
   int delim_1 = clientValues.indexOf('t');
   //Search for the next comma just after the first
@@ -60,26 +62,32 @@ void loop() {
 
   String unit = clientValues.substring(0, delim_1);
   String tempString = clientValues.substring(delim_1+1, delim_2);
-  String moistString = clientValues.substring(delim_2);
+  String moistString = clientValues.substring(delim_2+1);
   int u = unit.toInt();
+  Serial.print("Unit ");
+  Serial.println(u);
+  Serial.print("Temp ");
+  Serial.println(tempString);
+  Serial.print("Moist ");
+  Serial.println(moistString);
 
   if(u == 1){
     unit1stat = 1;
+    temp[0] = tempString.toInt();
+    moist[0] = moistString.toInt();
   }
   else if(u == 2){
-    unit2stat =1;
+    unit2stat = 1;
+    temp[1] = tempString.toInt();
+    moist[1] = moistString.toInt();
   }
-
-  temp[u-1] = tempString.toInt();
-  moist[u-1] = moistString.toInt();
   
   client.flush();
 
   // Prepare the response
-  //String s = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<!DOCTYPE HTML>\r\n<html>\r\nGPIO is now ";
-  //s += "</html>\n";
-  String s = "200";
-
+  String s = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<!DOCTYPE HTML>\r\n<html>\r\nGPIO is now ";
+  s += "</html>\n";
+  
   // Send the response to the client
   client.print(s);
   delay(1);
@@ -97,3 +105,4 @@ void loop() {
     unit2stat = 0;
   }
 }
+
